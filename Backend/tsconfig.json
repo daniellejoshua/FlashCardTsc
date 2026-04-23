@@ -2,7 +2,7 @@
   // Visit https://aka.ms/tsconfig to read more about this file
   "compilerOptions": {
     // File Layout
-    "rootDir": "./src",
+    "rootDir": "src",
 
     // Environment Settings
     // See also https://aka.ms/tsconfig/module
@@ -10,7 +10,7 @@
     "target": "es2022",
     "types": [],
     // For nodejs: "rootDir": "./src",
-    "outDir": "./dist",
+    "outDir": "dist",
     // "lib": ["esnext"],
     // "types": ["node"],
     // and npm install -D @types/node

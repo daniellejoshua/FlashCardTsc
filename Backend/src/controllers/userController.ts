@@ -120,3 +120,26 @@ export const tokenRefresher: RequestHandler = async (req, res, next) => {
     return next(err);
   }
 };
+
+export const logOutUser: RequestHandler = async (req, res, next) => {
+  const accessToken = req.cookies?.accessToken;
+  const refreshToken = req.cookies?.refreshToken;
+  if (accessToken && refreshToken)
+    return res.status(401).json({ message: "No Token" });
+  try {
+    res.clearCookie("accessToken", {
+      httpOnly: true,
+      secure: false,
+      sameSite: "none",
+    });
+    res.clearCookie("refreshToken", {
+      httpOnly: true,
+      secure: false,
+      sameSite: "none",
+    });
+
+    return res.status(200).json({ message: "Log out successfully" });
+  } catch (error) {
+    return next(error);
+  }
+};
