@@ -14,13 +14,9 @@ type CreateTopicHandler = RequestHandler<
   AuthLocals
 >;
 
-export const createTopicController: CreateTopicHandler = async (
-  req,
-  res,
-  next,
-) => {
+export const addTopic: CreateTopicHandler = async (req, res, next) => {
   try {
-    const user_id = res.locals.authUser.user_id; // from token
+    const user_id = res.locals.authUser.user_id;
     const { title, description } = req.body;
 
     const topic = await createTopic({ user_id, title, description });

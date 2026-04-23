@@ -5,11 +5,13 @@ import {
   registerUser,
   tokenRefresher,
 } from "../controllers/userController.js";
-
+import { validateRequest } from "../middleware/validateRequest.js";
+import { loginSchema, registerSchema } from "../schemas/userSchema.js";
+import { z } from "zod";
 const router = express.Router();
-
-router.post("/createUser", registerUser);
-router.post("/login", authUser);
+const validateWithSchema = (schema: z.ZodSchema) => validateRequest(schema);
+router.post("/createUser", validateWithSchema(registerSchema), registerUser);
+router.post("/login", validateWithSchema(loginSchema), authUser);
 router.post("/refreshToken", tokenRefresher);
 router.post("/logout", logOutUser);
 
