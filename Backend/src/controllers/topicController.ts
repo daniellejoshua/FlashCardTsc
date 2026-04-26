@@ -44,17 +44,23 @@ export const addTopic: CreateTopicHandler = async (req, res, next) => {
 
 export const getUsersTopic: GetUsersTopicHandler = async (req, res, next) => {
   try {
-    const { id } = req.params;
-    const userId = parseInt(id, 10);
-    if (isNaN(userId)) {
+    const paramsId = Number(req.params.id);
+    if (Number.isNaN(paramsId)) {
       return res.status(400).json({ message: "Not a valid ID" });
     }
-    const topics = (await getTopicWithUser(userId)) as GetUsersTopicResponse[];
-    if (!topics || topics.length === 0) {
-      return res.status(404).json({
-        message: "No topics found",
-      });
+
+    const authUserId = res.locals.authUser.user_id;
+    if (paramsId !== authUserId) {
+      return res.status(403).json({ message: "Forbidden" });
     }
+
+    const topics = (await getTopicWithUser(
+      paramsId,
+    )) as GetUsersTopicResponse[];
+    if (!topics || topics.length === 0) {
+      return res.status(404).json({ message: "No topics found" });
+    }
+
     return res.status(200).json(topics);
   } catch (error) {
     return next(error);
