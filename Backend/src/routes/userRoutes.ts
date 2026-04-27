@@ -8,11 +8,7 @@ import {
 import { validateRequest } from "../middleware/validateRequest.js";
 import { loginSchema, registerSchema } from "../schemas/userSchema.js";
 import { z } from "zod";
-import {
-  strictLimiter,
-  genereralLimiter,
-  userLimiter,
-} from "../middleware/rateLimit.js";
+import { strictLimiter, genereralLimiter } from "../middleware/rateLimit.js";
 const router = express.Router();
 const validateWithSchema = (schema: z.ZodSchema) => validateRequest(schema);
 router.post(

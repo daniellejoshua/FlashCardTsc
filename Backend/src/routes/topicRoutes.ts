@@ -25,10 +25,20 @@ router.post(
 );
 
 router.get<userIdParams, any, any, any, AuthLocals>(
-  "/user/:id",
+  "/user/:id/topics",
   AuthToken,
   userLimiter,
   getUsersTopic,
+);
+
+import { generateFlashCard } from "../controllers/flashCardController.js";
+
+router.post(
+  "/topics/generate",
+  validateWithSchema(createTopicSchema),
+  AuthToken,
+  genereralLimiter,
+  generateFlashCard,
 );
 
 export default router;

@@ -2,10 +2,10 @@ import { createTopic } from "../models/Topic.js";
 import type { RequestHandler } from "express";
 import type { AuthLocals } from "../types/authToken.js";
 import { getTopicWithUser } from "../models/Topic.js";
-interface TopicBody {
-  title: string;
-  description: string;
-}
+import { z } from "zod";
+import { createTopicSchema } from "../schemas/topicSchema.js";
+
+export type CreateTopicBody = z.infer<typeof createTopicSchema>;
 
 interface userIdParams {
   id: string;
@@ -28,7 +28,13 @@ type GetUsersTopicHandler = RequestHandler<
   AuthLocals
 >;
 
-type CreateTopicHandler = RequestHandler<{}, any, TopicBody, any, AuthLocals>;
+type CreateTopicHandler = RequestHandler<
+  {},
+  any,
+  CreateTopicBody,
+  any,
+  AuthLocals
+>;
 
 export const addTopic: CreateTopicHandler = async (req, res, next) => {
   try {

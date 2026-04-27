@@ -1,13 +1,12 @@
 import { sql } from "../config/db.js";
+import type { TopicCreateInput } from "../types/topicTypes.js";
 
-interface Topic {
-  user_id: number;
-  title: string;
-  description?: string;
-}
-
-export async function createTopic({ user_id, title, description = "" }: Topic) {
-  return await sql` INSERT INTO topics (user_id, title, description, difficulty)
+export async function createTopic({
+  user_id,
+  title,
+  description = "",
+}: TopicCreateInput) {
+  return await sql` INSERT INTO topics (user_id, title, description)
     VALUES (${user_id}, ${title}, ${description})
     RETURNING *;`;
 }
