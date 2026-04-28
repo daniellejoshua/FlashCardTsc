@@ -35,7 +35,7 @@ export const generateFlashCard: RequestHandler<
     const user_id = res.locals?.authUser?.user_id;
     if (!user_id) return res.status(400).json({ message: "No user ID" });
     const [topic] = await createTopic({ user_id, title, description });
-    if (!topic) return res.status(200).json({ message: "Topic not created" });
+    if (!topic) return res.status(400).json({ message: "Topic not created" });
     const aiOutput = await generateFlashcardsFromGemini(
       title,
       description ?? "",

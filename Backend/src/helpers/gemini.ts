@@ -119,7 +119,7 @@ export function parseFlashcards(payload: unknown): FlashcardAIOutput[] {
 export async function generateFlashcardsFromGemini(
   title: string,
   description: string,
-  count: number,
+  count = 5,
 ): Promise<FlashcardAIOutput[]> {
   const prompt = buildPrompt(title, description, count);
   const response = await ai.models.generateContent({
