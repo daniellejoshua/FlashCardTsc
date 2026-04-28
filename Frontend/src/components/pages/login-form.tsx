@@ -14,6 +14,7 @@ import Link from "next/link";
 import useAuthForm from "@/hooks/useAuthForm";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 export function LoginForm({
   className,
   ...props
@@ -24,12 +25,19 @@ export function LoginForm({
   const router = useRouter();
 
   const handleSubmit = async (e: React.SyntheticEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    await submit("http://localhost:3001/api/user/login", {
-      identifier,
-      password,
-    });
-    router.push("/HomePage");
+    try {
+      e.preventDefault();
+      await submit("http://localhost:3001/api/user/login", {
+        identifier,
+        password,
+      });
+      router.push("/HomePage");
+      toast.success("Log in SuccessFully", { position: "top-right" });
+    } catch (err) {
+      const message =
+        err instanceof Error ? err.message : "Something Went Wrong";
+      toast.error(message, { position: "top-right" });
+    }
   };
 
   return (
@@ -96,7 +104,7 @@ export function LoginForm({
       </Card>
       <FieldDescription className="px-6 text-center">
         By clicking continue, you agree to our <a href="#">Terms of Service</a>{" "}
-        and <a href="#">Privacy Policy</a>.
+        and <a href="#">Privacy Policy</a>
       </FieldDescription>
     </div>
   );
