@@ -1,4 +1,4 @@
-import rateLimit from "express-rate-limit";
+import rateLimit, { ipKeyGenerator } from "express-rate-limit";
 import type { RequestHandler } from "express";
 
 export const genereralLimiter = rateLimit({
@@ -16,7 +16,8 @@ export const userLimiter: RequestHandler = rateLimit({
   legacyHeaders: false,
   keyGenerator: (req) => {
     const userId = req.res?.locals?.authUser?.user_id;
-    return userId ? `user_${userId}` : req.ip || `unknown`;
+    const ip = req.ip ?? req.socket?.remoteAddress ?? "unknown";
+    return userId ? `user_${userId}` : ipKeyGenerator(ip);
   },
   handler: (_req, res) => {
     return res.status(429).json({
