@@ -10,6 +10,7 @@ export async function topicTable() {
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY (user_id) REFERENCES users(id)
     )`;
+    await sql` CREATE INDEX IF NOT EXISTS idx_topics_user_id ON topics(user_id)`;
   } catch (error) {
     const message = getErrorMessage(error);
 
