@@ -77,11 +77,14 @@ export const authUser: LoginHandler = async (req, res, next) => {
       httpOnly: true,
       secure: false,
       sameSite: "none",
+      path: "/",
+      maxAge: 30 * 1000, // 30 seconds
     });
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
       secure: false,
       sameSite: "none",
+      path: "/",
     });
 
     return res.status(200).json({ message: "Log in Successfully" });
@@ -107,6 +110,7 @@ export const tokenRefresher: RequestHandler = async (req, res, next) => {
     const newAccessToken = jwt.sign(
       { user_id: user.id, username: user.username },
       process.env.ACCESS_TOKEN!,
+      { expiresIn: "30s" },
     );
 
     res.cookie("accessToken", newAccessToken, {
