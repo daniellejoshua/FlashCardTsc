@@ -31,7 +31,7 @@ export function LoginForm({
         identifier,
         password,
       });
-      router.push("/HomePage");
+      router.push("/protected/HomePage");
       toast.success("Log in SuccessFully", { position: "top-right" });
     } catch (err) {
       const message =
