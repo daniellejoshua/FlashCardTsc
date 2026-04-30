@@ -7,6 +7,9 @@ export async function createUser(
   email: string,
 ) {
   const hashed_password = await bcrypt.hash(password, 10);
-  return await sql`INSERT INTO users (username,hashed_password, email)
-  VALUES (${username}, ${hashed_password}, ${email}) RETURNING * `;
+
+  const [user] = await sql`INSERT INTO users (username,hashed_password, email)
+  VALUES (${username}, ${hashed_password}, ${email}) RETURNING id,username,email,created_at
+   `;
+  return user;
 }
