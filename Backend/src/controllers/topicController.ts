@@ -13,11 +13,12 @@ interface userIdParams {
 
 interface GetUsersTopicResponse {
   id: number;
-  topic: number;
-  description?: string;
-  email: string;
+  user_id: number;
+  title: string;
+  description: string;
   created_at: string;
   username: string;
+  email: string;
 }
 
 type GetUsersTopicHandler = RequestHandler<

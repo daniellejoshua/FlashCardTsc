@@ -27,7 +27,7 @@ export function SignupForm({
                 </p>
               </div>
               <Field>
-                <FieldLabel htmlFor="Username">Username</FieldLabel>
+                <FieldLabel htmlFor="username">Username</FieldLabel>
                 <Input
                   id="username"
                   type="text"

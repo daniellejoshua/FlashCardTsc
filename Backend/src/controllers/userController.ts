@@ -132,7 +132,7 @@ export const tokenRefresher: RequestHandler = async (req, res, next) => {
 export const logOutUser: RequestHandler = async (req, res, next) => {
   const accessToken = req.cookies?.accessToken;
   const refreshToken = req.cookies?.refreshToken;
-  if (accessToken && refreshToken)
+  if (!accessToken && !refreshToken)
     return res.status(401).json({ message: "No Token" });
   try {
     res.clearCookie("accessToken", {

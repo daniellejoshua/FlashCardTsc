@@ -14,7 +14,6 @@ export interface TopicWithUser {
   user_id: number;
   title: string;
   description: string;
-  difficulty: string;
   created_at: string;
   username: string;
   email: string;
