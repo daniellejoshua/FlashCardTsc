@@ -1,7 +1,5 @@
 import express from "express";
-import { UserTable } from "./migration/001-users-table.js";
-import { topicTable } from "./migration/002-create-topic.js";
-import { flashCardTable } from "./migration/003-create-flashcard.js";
+
 import morgan from "morgan";
 import helmet from "helmet";
 import cookieParser from "cookie-parser";
@@ -24,9 +22,6 @@ app.use("/api/topic", topicRoutes);
 async function initializeDb() {
   try {
     console.log("DB CONNECTED SUCCESSFULLY");
-    await UserTable();
-    await topicTable();
-    await flashCardTable();
   } catch (error) {
     console.log("ERROR INITILIAZING DB", error);
   }
