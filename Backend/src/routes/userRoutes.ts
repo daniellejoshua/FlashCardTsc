@@ -4,6 +4,7 @@ import {
   logOutUser,
   registerUser,
   tokenRefresher,
+  verifyUser,
 } from "../controllers/userController.js";
 import { validateRequest } from "../middleware/validateRequest.js";
 import { loginSchema, registerSchema } from "../schemas/userSchema.js";
@@ -20,5 +21,5 @@ router.post(
 router.post("/login", validateWithSchema(loginSchema), strictLimiter, authUser);
 router.post("/refreshToken", genereralLimiter, tokenRefresher);
 router.post("/logout", genereralLimiter, logOutUser);
-
+router.get("/verify", genereralLimiter, verifyUser);
 export default router;

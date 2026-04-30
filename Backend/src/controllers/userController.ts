@@ -54,12 +54,14 @@ export const authUser: LoginHandler = async (req, res, next) => {
       res.clearCookie("refreshToken", {
         httpOnly: true,
         secure: false,
-        sameSite: "none",
+        sameSite: "lax",
+        path: "/",
       });
       res.clearCookie("accessToken", {
         httpOnly: true,
         secure: false,
-        sameSite: "none",
+        sameSite: "lax",
+        path: "/",
       });
     }
 
@@ -76,14 +78,14 @@ export const authUser: LoginHandler = async (req, res, next) => {
     res.cookie("accessToken", accessToken, {
       httpOnly: true,
       secure: false,
-      sameSite: "none",
+      sameSite: "lax",
       path: "/",
       maxAge: 30 * 1000, // 30 seconds
     });
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
       secure: false,
-      sameSite: "none",
+      sameSite: "lax",
       path: "/",
     });
 
@@ -116,7 +118,9 @@ export const tokenRefresher: RequestHandler = async (req, res, next) => {
     res.cookie("accessToken", newAccessToken, {
       httpOnly: true,
       secure: false,
-      sameSite: "none",
+      sameSite: "lax",
+      path: "/",
+      maxAge: 30 * 1000,
     });
 
     res.status(200).json({ message: "Token Refreshed Successfully" });
@@ -134,15 +138,32 @@ export const logOutUser: RequestHandler = async (req, res, next) => {
     res.clearCookie("accessToken", {
       httpOnly: true,
       secure: false,
-      sameSite: "none",
+      sameSite: "lax",
+      path: "/",
     });
     res.clearCookie("refreshToken", {
       httpOnly: true,
       secure: false,
-      sameSite: "none",
+      sameSite: "lax",
+      path: "/",
     });
 
     return res.status(200).json({ message: "Log out successfully" });
+  } catch (error) {
+    return next(error);
+  }
+};
+
+export const verifyUser: RequestHandler = async (req, res, next) => {
+  try {
+    const token = req.cookies?.accessToken;
+    if (!token) return res.status(400).json({ message: "No Token" });
+
+    const decoded = jwt.verify(token, process.env.ACCESS_TOKEN!);
+    if (typeof decoded === "string") {
+      return res.status(400).json({ message: "Invalid Token" });
+    }
+    return res.status(200).json({ valid: true });
   } catch (error) {
     return next(error);
   }
