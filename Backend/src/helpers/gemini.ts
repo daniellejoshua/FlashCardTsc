@@ -5,15 +5,6 @@ interface FlashcardAIOutput {
   answer: string;
 }
 
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
-if (!GEMINI_API_KEY) {
-  throw new Error("Missing GEMINI_API_KEY in environment");
-}
-
-const ai = new GoogleGenAI({
-  apiKey: GEMINI_API_KEY,
-});
-
 function buildPrompt(title: string, description: string, count = 5) {
   return `
 Generate exactly ${count} flashcards for the topic below.
@@ -41,60 +32,6 @@ REMINDER: Output JSON array only. No other text.
 `;
 }
 
-// function parseFlashcards(payload: unknown): FlashcardAIOutput[] {
-//   if (!Array.isArray(payload)) {
-//     throw new Error("Gemini response was not an array");
-//   }
-
-//   return payload.map((item, index) => {
-//     if (
-//       typeof item !== "object" ||
-//       item === null ||
-//       typeof (item as any).question !== "string" ||
-//       typeof (item as any).answer !== "string"
-//     ) {
-//       throw new Error(`Invalid flashcard format at index ${index}`);
-//     }
-
-//     return {
-//       question: (item as any).question,
-//       answer: (item as any).answer,
-//     };
-//   });
-// }
-
-// export async function generateFlashcardsFromGemini(
-//   title: string,
-//   description: string,
-//   count = 5,
-// ): Promise<FlashcardAIOutput[]> {
-//   const prompt = buildPrompt(title, description, count);
-
-//   const response = await ai.models.generateContent({
-//     model: "gemini-3-flash-preview",
-//     contents: prompt,
-//     config: {
-//       temperature: 0.7,
-//       maxOutputTokens: 5000,
-//     },
-//   });
-
-//   const text = response.text;
-//   if (typeof text !== "string") {
-//     throw new Error("Unexpected Gemini response format");
-//   }
-
-//   let parsed: unknown;
-//   console.log(text);
-//   try {
-//     parsed = JSON.parse(text);
-//   } catch {
-//     throw new Error("Failed to parse Gemini JSON output");
-//   }
-
-//   return parseFlashcards(parsed);
-// }
-
 export function parseFlashcards(payload: unknown): FlashcardAIOutput[] {
   if (!Array.isArray(payload)) {
     throw new Error("Gemini didnt asnwer as a Array");
@@ -115,12 +52,19 @@ export function parseFlashcards(payload: unknown): FlashcardAIOutput[] {
     };
   });
 }
-
+function getAiClient() {
+  const key = process.env.GEMINI_API_KEY;
+  if (!key) {
+    throw new Error("Missing GEMINI KEY");
+  }
+  return new GoogleGenAI({ apiKey: key });
+}
 export async function generateFlashcardsFromGemini(
   title: string,
   description: string,
   count = 5,
 ): Promise<FlashcardAIOutput[]> {
+  const ai = getAiClient();
   const prompt = buildPrompt(title, description, count);
   const response = await ai.models.generateContent({
     model: "gemini-3-flash-preview",
