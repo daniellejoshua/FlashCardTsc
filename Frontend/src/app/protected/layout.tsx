@@ -1,6 +1,5 @@
 import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
-import { fetchWithAuth } from "@/lib/fetchWithAuth";
 export default async function ProtectedLayout({
   children,
 }: {

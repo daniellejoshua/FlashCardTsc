@@ -16,18 +16,23 @@ export interface FlashcardRow {
 export async function createFlashcards(
   flashCards: FlashcardCreateInput[],
 ): Promise<FlashcardRow[]> {
-  const created = await Promise.all(
-    flashCards.map(
-      ({ topic_id, question, answer }) =>
-        sql`
-        INSERT INTO flashcards (topic_id, question, answer)
-        VALUES (${topic_id}, ${question}, ${answer})
-        RETURNING *
-      `,
-    ),
-  );
+  if (flashCards.length === 0) return [];
 
-  return created.flat() as FlashcardRow[];
+  const topicIds = flashCards.map((fc) => fc.topic_id);
+  const questions = flashCards.map((fc) => fc.question);
+  const answers = flashCards.map((fc) => fc.answer);
+
+  const created = await sql`
+    INSERT INTO flashcards (topic_id, question, answer)
+    SELECT * FROM UNNEST(
+      ${topicIds}::int[],
+      ${questions}::text[],
+      ${answers}::text[]
+    )
+    RETURNING *
+  `;
+
+  return created as FlashcardRow[];
 }
 
 export async function getFlashcardById(topic_id: number) {
