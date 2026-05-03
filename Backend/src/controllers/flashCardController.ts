@@ -6,7 +6,6 @@ import {
 } from "../models/Flashcards.js";
 import { createTopic } from "../models/Topic.js";
 import { generateFlashcardsFromGemini } from "../helpers/gemini.js";
-import { GoogleGenAI } from "@google/genai";
 interface FlashcardRow {
   id: number;
   question: string;
@@ -23,13 +22,7 @@ type GenerateFlashcardError = {
   message: string;
 };
 
-function getAiClient() {
-  const key = process.env.GEMINI_API_KEY;
-  if (!key) {
-    throw new Error("Missing GEMINI KEY");
-  }
-  return new GoogleGenAI({ apiKey: key });
-}
+
 
 export const generateFlashCard: RequestHandler<
   {},
@@ -38,7 +31,6 @@ export const generateFlashCard: RequestHandler<
   {},
   AuthLocals
 > = async (req, res, next) => {
-  getAiClient();
   try {
     const { title, description } = req.body;
     const user_id = res.locals?.authUser?.user_id;

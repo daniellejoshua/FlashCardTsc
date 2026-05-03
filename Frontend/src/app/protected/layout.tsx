@@ -8,11 +8,10 @@ export default async function ProtectedLayout({
   const cookieStore = cookies();
   const token = (await cookieStore).get("accessToken")?.value;
   if (!token) return redirect("/public/login");
-  const cookieHeader = cookies().toString();
   const res = await fetch("http://localhost:3001/api/user/verify", {
     method: "GET",
     headers: {
-      cookie: cookieHeader,
+      cookie: `accessToken=${token}`,
     },
     cache: "no-store",
   });
