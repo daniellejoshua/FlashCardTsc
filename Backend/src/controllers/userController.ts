@@ -80,7 +80,6 @@ export const authUser: LoginHandler = async (req, res, next) => {
       secure: false,
       sameSite: "lax",
       path: "/",
-      maxAge: 30 * 1000, // 30 seconds
     });
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
@@ -120,7 +119,6 @@ export const tokenRefresher: RequestHandler = async (req, res, next) => {
       secure: false,
       sameSite: "lax",
       path: "/",
-      maxAge: 30 * 1000,
     });
 
     res.status(200).json({ message: "Token Refreshed Successfully" });
@@ -157,14 +155,55 @@ export const logOutUser: RequestHandler = async (req, res, next) => {
 export const verifyUser: RequestHandler = async (req, res, next) => {
   try {
     const token = req.cookies?.accessToken;
-    if (!token) return res.status(400).json({ message: "No Token" });
-
-    const decoded = jwt.verify(token, process.env.ACCESS_TOKEN!);
-    if (typeof decoded === "string") {
-      return res.status(400).json({ message: "Invalid Token" });
+    if (!token) {
+      console.log("No access token cookie");
+      return res.status(400).json({ message: "No Token" });
     }
-    return res.status(200).json({ valid: true });
-  } catch (error) {
-    return next(error);
+
+    try {
+      jwt.verify(token, process.env.ACCESS_TOKEN!);
+      console.log("Token is still valid");
+      return res.status(200).json({ valid: true });
+    } catch (err: unknown) {
+      console.log("Error verifying token:", (err as any).name);
+
+      if (err instanceof jwt.TokenExpiredError) {
+        console.log("Token expired, attempting refresh...");
+        const refreshToken = req.cookies?.refreshToken;
+        if (!refreshToken) {
+          console.log("No refresh token");
+          return res.status(401).json({ message: "No refresh Token" });
+        }
+
+        const decoded = jwt.verify(refreshToken, process.env.REFRESH_TOKEN!);
+        if (typeof decoded === "string") {
+          console.log("Decoded is string, invalid");
+          return res.status(403).json({ message: "Invalid refreshToken" });
+        }
+
+        const payload = decoded as TokenPayload;
+        console.log("Refreshing token for user:", payload.user_id);
+
+        const newAccessToken = jwt.sign(
+          { user_id: payload.user_id, username: payload.username },
+          process.env.ACCESS_TOKEN!,
+          { expiresIn: "30s" },
+        );
+
+        res.cookie("accessToken", newAccessToken, {
+          httpOnly: true,
+          secure: false,
+          sameSite: "lax",
+          path: "/",
+        });
+
+        console.log("New access token set");
+        return res.status(200).json({ valid: true });
+      }
+      throw err;
+    }
+  } catch (err) {
+    console.log("Verify error:", err);
+    return next(err);
   }
 };

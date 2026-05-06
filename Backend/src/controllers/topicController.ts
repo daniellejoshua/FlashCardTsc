@@ -22,13 +22,12 @@ interface GetUsersTopicResponse {
 }
 
 type GetUsersTopicHandler = RequestHandler<
-  userIdParams,
+  {}, // no params
   GetUsersTopicResponse[] | { message: string },
   {},
   {},
   AuthLocals
 >;
-
 type CreateTopicHandler = RequestHandler<
   {},
   any,
@@ -49,21 +48,14 @@ export const addTopic: CreateTopicHandler = async (req, res, next) => {
   }
 };
 
-export const getUsersTopic: GetUsersTopicHandler = async (req, res, next) => {
+export const getUsersTopic: GetUsersTopicHandler = async (_req, res, next) => {
   try {
-    const paramsId = Number(req.params.id);
-    if (Number.isNaN(paramsId)) {
-      return res.status(400).json({ message: "Not a valid ID" });
-    }
-
     const authUserId = res.locals.authUser.user_id;
-    if (paramsId !== authUserId) {
-      return res.status(403).json({ message: "Forbidden" });
-    }
 
     const topics = (await getTopicWithUser(
-      paramsId,
+      authUserId,
     )) as GetUsersTopicResponse[];
+
     if (!topics || topics.length === 0) {
       return res.status(404).json({ message: "No topics found" });
     }

@@ -5,16 +5,10 @@ import { validateRequest } from "../middleware/validateRequest.js";
 import { createTopicSchema } from "../schemas/topicSchema.js";
 import { z } from "zod";
 import { genereralLimiter, userLimiter } from "../middleware/rateLimit.js";
-import type { ParamsDictionary } from "express-serve-static-core";
-import type { AuthLocals } from "../types/authToken.js";
 
 const router = express.Router();
 
 const validateWithSchema = (schema: z.ZodSchema) => validateRequest(schema);
-
-interface userIdParams extends ParamsDictionary {
-  id: string;
-}
 
 router.post(
   "/createTopic",
@@ -24,13 +18,7 @@ router.post(
   addTopic,
 );
 
-router.get<userIdParams, any, any, any, AuthLocals>(
-  "/user/:id/topics",
-  AuthToken,
-  userLimiter,
-  getUsersTopic,
-);
-
+router.get("/topics", AuthToken, userLimiter, getUsersTopic);
 import { generateFlashCard } from "../controllers/flashCardController.js";
 
 router.post(

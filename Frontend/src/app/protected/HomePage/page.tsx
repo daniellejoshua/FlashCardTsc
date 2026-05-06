@@ -1,12 +1,8 @@
 "use client";
-import React, { useState } from "react";
+import { useState } from "react";
 import {
   MdMenu,
-  MdSearch,
-  MdNotifications,
   MdExpandMore,
-  MdMoreVert,
-  MdBookmark,
   MdDashboard,
   MdAutoStories,
   MdOutlineAssignmentTurnedIn,
@@ -15,20 +11,15 @@ import {
   MdSettings,
   MdLogout,
 } from "react-icons/md";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
 import CreateTopicModal from "./CreateTopicModal";
-
-type Topic = {
-  id: string;
-  title: string;
-  flashcardCount: number;
-  createdDate: string;
-  status: "active" | "inactive";
-};
-
-interface Props {
-  userName?: string;
-  topics?: Topic[];
-}
 
 const sidebarItems = [
   { label: "Overview", icon: MdDashboard },
@@ -39,252 +30,157 @@ const sidebarItems = [
   { label: "Settings", icon: MdSettings },
 ];
 
-export default function HomePage({ userName = "User", topics }: Props) {
-  const [activeTab, setActiveTab] = useState("all");
+// Mock topics for design
+const mockTopics = [
+  {
+    id: "1",
+    title: "Solar System",
+    description: "Learn about planets, stars, and celestial bodies",
+    flashcardCount: 15,
+    createdDate: "2024-01-15",
+    status: "active" as const,
+  },
+  {
+    id: "2",
+    title: "World History",
+    description: "Key events and figures from ancient to modern times",
+    flashcardCount: 25,
+    createdDate: "2024-02-20",
+    status: "active" as const,
+  },
+  {
+    id: "3",
+    title: "Chemistry Basics",
+    description: "Fundamental concepts in chemistry",
+    flashcardCount: 10,
+    createdDate: "2024-03-10",
+    status: "inactive" as const,
+  },
+];
+
+export default function HomePage({ userName = "User" }: { userName?: string }) {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleCreateTopic = (topic: { title: string; description: string }) => {
     console.log("Creating topic:", topic);
-    // TODO: Integrate with API to create topic
     setIsModalOpen(false);
   };
 
-  const sampleTopics: Topic[] = [
-    {
-      id: "1",
-      title: "Biology",
-      flashcardCount: 12,
-      createdDate: "07/09/2023",
-      status: "active",
-    },
-    {
-      id: "2",
-      title: "History",
-      flashcardCount: 5,
-      createdDate: "03/09/2023",
-      status: "active",
-    },
-    {
-      id: "3",
-      title: "Math",
-      flashcardCount: 8,
-      createdDate: "05/09/2023",
-      status: "active",
-    },
-    {
-      id: "4",
-      title: "Chemistry",
-      flashcardCount: 15,
-      createdDate: "02/09/2023",
-      status: "active",
-    },
-    {
-      id: "5",
-      title: "Physics",
-      flashcardCount: 10,
-      createdDate: "01/09/2023",
-      status: "inactive",
-    },
-  ];
-
-  const displayTopics = topics ?? sampleTopics;
-  const filteredTopics =
-    activeTab === "active"
-      ? displayTopics.filter((t) => t.status === "active")
-      : activeTab === "inactive"
-        ? displayTopics.filter((t) => t.status === "inactive")
-        : displayTopics;
-
   return (
-    <div className="flex h-screen bg-white">
+    <div className="flex h-screen bg-background">
       {/* Sidebar */}
       <aside
         className={`${
-          sidebarOpen ? "w-64" : "w-20"
-        } bg-black text-white transition-all duration-300 flex flex-col`}
+          sidebarOpen ? "w-64" : "w-16"
+        } bg-blue-50 border-r border-border transition-all duration-300 flex flex-col`}
       >
-        <div className="p-6 flex items-center justify-between border-b border-gray-800">
-          <div className={`font-bold text-lg ${!sidebarOpen && "hidden"}`}>
+        <div className="p-4 flex items-center justify-between">
+          <div
+            className={`font-bold text-lg text-blue-900 ${!sidebarOpen && "hidden"}`}
+          >
             StudyHub
           </div>
-          <button
+          <Button
+            variant="ghost"
+            size="icon"
             onClick={() => setSidebarOpen(!sidebarOpen)}
-            className="p-2 hover:bg-gray-900 rounded-lg transition-colors"
+            className="text-blue-700 hover:bg-blue-100"
           >
-            <MdMenu size={24} />
-          </button>
+            <MdMenu size={20} />
+          </Button>
         </div>
 
         <nav className="flex-1 p-4 space-y-2">
           {sidebarItems.map((item, idx) => {
             const IconComponent = item.icon;
             return (
-              <button
+              <Button
                 key={idx}
-                className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
-                  item.active
-                    ? "bg-white text-black font-semibold"
-                    : "text-gray-400 hover:text-gray-200 hover:bg-gray-900"
-                }`}
+                variant={item.active ? "default" : "ghost"}
+                className={`w-full justify-start gap-3 text-blue-700 hover:bg-blue-100 hover:text-blue-900 ${
+                  item.active && "bg-blue-100 text-blue-900"
+                } ${!sidebarOpen && "px-2"}`}
               >
                 <IconComponent size={20} />
                 <span className={`text-sm ${!sidebarOpen && "hidden"}`}>
                   {item.label}
                 </span>
-              </button>
+              </Button>
             );
           })}
         </nav>
 
-        <div className="p-4 border-t border-gray-800">
-          <button className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-gray-400 hover:text-gray-200 hover:bg-gray-900 transition-colors">
+        <div className="p-4">
+          <Button
+            variant="ghost"
+            className={`w-full justify-start gap-3 text-blue-700 hover:bg-blue-100 hover:text-blue-900 ${
+              !sidebarOpen && "px-2"
+            }`}
+          >
             <MdLogout size={20} />
             <span className={`text-sm ${!sidebarOpen && "hidden"}`}>
               Logout
             </span>
-          </button>
+          </Button>
         </div>
       </aside>
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col">
         {/* Header */}
-        <header className="bg-white border-b border-gray-200 px-8 py-6 flex items-center justify-between sticky top-0 z-40">
-          <div>
-            <h1 className="text-xl font-semibold text-black">Topics</h1>
-            <p className="text-sm text-gray-600 mt-1">
-              {filteredTopics.length} topic
-              {filteredTopics.length !== 1 ? "s" : ""} available
-            </p>
-          </div>
-
-          <div className="flex items-center gap-4">
-            <button className="p-2 hover:bg-gray-100 rounded-lg relative transition-colors">
-              <MdNotifications size={22} className="text-gray-700" />
-              <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full"></span>
-            </button>
-            <div className="flex items-center gap-3 pl-4 border-l border-gray-200">
-              <div className="w-10 h-10 rounded-full bg-black text-white flex items-center justify-center font-semibold text-sm">
-                {userName.charAt(0).toUpperCase()}
-              </div>
-              <div>
-                <p className="text-sm font-medium text-black">Welcome</p>
-                <p className="text-xs text-gray-500 truncate max-w-24">
-                  {userName}
-                </p>
-              </div>
-              <MdExpandMore
-                size={20}
-                className="text-gray-600 cursor-pointer hover:text-black transition-colors"
-              />
+        <header className="bg-background px-6 py-4 flex items-center justify-end">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-semibold text-sm">
+              {userName.charAt(0).toUpperCase()}
             </div>
+            <div>
+              <p className="text-sm font-medium">Welcome</p>
+              <p className="text-xs text-muted-foreground">{userName}</p>
+            </div>
+            <MdExpandMore size={18} className="text-muted-foreground" />
           </div>
         </header>
 
         {/* Main Area */}
-        <main className="flex-1 overflow-auto p-8 bg-white">
+        <main className="flex-1 overflow-auto p-6">
           {/* Title and Action */}
-          <div className="mb-8 flex items-center justify-between">
+          <div className="mb-6 flex items-center justify-between">
             <div>
-              <h2 className="text-lg font-semibold text-black">Your Topics</h2>
+              <h2 className="text-2xl font-semibold">Your Topics</h2>
+              <p className="text-muted-foreground">
+                Manage and study your flashcard topics
+              </p>
             </div>
-            <button
-              onClick={() => setIsModalOpen(true)}
-              className="bg-black text-white px-6 py-2.5 rounded-lg hover:bg-gray-900 transition-colors font-medium text-sm"
-            >
-              + Create Topic
-            </button>
+            <Button onClick={() => setIsModalOpen(true)}>+ Create Topic</Button>
           </div>
 
           {/* Tabs */}
-          <div className="mb-8 flex gap-3 border-b border-gray-200">
-            {[
-              { label: "All Topics", value: "all" },
-              { label: "Active", value: "active" },
-              { label: "Inactive", value: "inactive" },
-            ].map((tab) => (
-              <button
-                key={tab.value}
-                onClick={() => setActiveTab(tab.value)}
-                className={`px-4 py-3 text-sm font-medium transition-colors border-b-2 ${
-                  activeTab === tab.value
-                    ? "border-black text-black"
-                    : "border-transparent text-gray-600 hover:text-black"
-                }`}
+
+          {/* Topics Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {mockTopics.map((topic) => (
+              <Card
+                key={topic.id}
+                className="hover:shadow-md transition-shadow h-64 flex flex-col"
               >
-                {tab.label}
-              </button>
-            ))}
-          </div>
-
-          {/* Cards Grid */}
-          {filteredTopics.length === 0 ? (
-            <div className="rounded-lg border border-gray-200 bg-gray-50 p-12 text-center">
-              <p className="text-gray-700 font-medium">
-                No topics available yet.
-              </p>
-              <p className="text-gray-500 text-sm mt-1">
-                Create your first topic to get started.
-              </p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {filteredTopics.map((topic) => (
-                <div
-                  key={topic.id}
-                  className="rounded-lg border border-gray-200 bg-white p-5 hover:border-gray-300 hover:shadow-sm transition-all"
-                >
-                  <div className="flex items-start justify-between mb-3">
-                    <div className="flex-1">
-                      <h3 className="text-base font-semibold text-black">
-                        {topic.title}
-                      </h3>
-                      <p className="text-xs text-gray-500 mt-1">
-                        {topic.createdDate}
-                      </p>
-                    </div>
-                    <button className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
-                      <MdMoreVert size={16} className="text-gray-600" />
-                    </button>
+                <CardHeader className="flex-1 flex flex-col">
+                  <CardTitle className="text-lg">{topic.title}</CardTitle>
+                  <CardDescription className="mt-2 flex-1 line-clamp-3">
+                    {topic.description}
+                  </CardDescription>
+                </CardHeader>
+                <div className="px-6 pb-6 mt-auto">
+                  <div className="text-sm text-muted-foreground mb-4">
+                    {topic.flashcardCount} flashcards
                   </div>
-
-                  <div className="mb-4 flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <MdBookmark className="text-gray-700" size={16} />
-                      <span className="text-sm font-medium text-gray-900">
-                        {topic.flashcardCount}
-                      </span>
-                      <span className="text-xs text-gray-500">cards</span>
-                    </div>
-                    <span
-                      className={`px-2 py-1 rounded text-xs font-medium ${
-                        topic.status === "active"
-                          ? "bg-gray-200 text-gray-800"
-                          : "bg-gray-100 text-gray-600"
-                      }`}
-                    >
-                      {topic.status === "active" ? "Active" : "Inactive"}
-                    </span>
-                  </div>
-
-                  <div className="flex gap-2 pt-4 border-t border-gray-100">
-                    <button className="flex-1 bg-black text-white py-2 rounded hover:bg-gray-900 transition-colors text-xs font-medium">
-                      Study
-                    </button>
-                    <button className="flex-1 border border-gray-300 text-gray-700 py-2 rounded hover:bg-gray-50 transition-colors text-xs font-medium">
-                      View
-                    </button>
-                  </div>
+                  <Separator className="mb-4" />
+                  <Button variant="outline" className="w-full">
+                    Study
+                  </Button>
                 </div>
-              ))}
-            </div>
-          )}
-
-          {/* Footer Info */}
-          <div className="mt-8 text-center text-xs text-gray-600">
-            Showing {filteredTopics.length}{" "}
-            {filteredTopics.length === 1 ? "topic" : "topics"}
+              </Card>
+            ))}
           </div>
         </main>
       </div>

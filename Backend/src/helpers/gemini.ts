@@ -64,13 +64,18 @@ export async function generateFlashcardsFromGemini(
   description: string,
   count = 5,
 ): Promise<FlashcardAIOutput[]> {
+  const aiModel = process.env.AI_MODEL;
+  if (!aiModel) {
+    throw new Error("Ai model is missing");
+  }
+
   const ai = getAiClient();
   const prompt = buildPrompt(title, description, count);
   const response = await ai.models.generateContent({
-    model: "gemini-3-flash-preview",
+    model: aiModel,
     contents: prompt,
     config: {
-      temperature: 0.7,
+      temperature: 1.0,
       maxOutputTokens: 5000,
     },
   });
