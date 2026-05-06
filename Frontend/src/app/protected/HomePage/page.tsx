@@ -20,7 +20,7 @@ import {
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import CreateTopicModal from "./CreateTopicModal";
-
+import { useFetch } from "@/hooks/useFetch";
 const sidebarItems = [
   { label: "Overview", icon: MdDashboard },
   { label: "Topics", icon: MdAutoStories, active: true },
@@ -29,39 +29,30 @@ const sidebarItems = [
   { label: "Analytics", icon: MdAnalytics },
   { label: "Settings", icon: MdSettings },
 ];
-
-// Mock topics for design
-const mockTopics = [
-  {
-    id: "1",
-    title: "Solar System",
-    description: "Learn about planets, stars, and celestial bodies",
-    flashcardCount: 15,
-    createdDate: "2024-01-15",
-    status: "active" as const,
-  },
-  {
-    id: "2",
-    title: "World History",
-    description: "Key events and figures from ancient to modern times",
-    flashcardCount: 25,
-    createdDate: "2024-02-20",
-    status: "active" as const,
-  },
-  {
-    id: "3",
-    title: "Chemistry Basics",
-    description: "Fundamental concepts in chemistry",
-    flashcardCount: 10,
-    createdDate: "2024-03-10",
-    status: "inactive" as const,
-  },
-];
+type Topic = {
+  id: number;
+  title: string;
+  description: string;
+  flashcardCount: number;
+};
+interface TopicWithUser {
+  id: number;
+  user_id: number;
+  title: string;
+  description: string;
+  created_at: string;
+  username: string;
+  email: string;
+}
 
 export default function HomePage({ userName = "User" }: { userName?: string }) {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
+  const { data, loading, error, refetch } = useFetch<{
+    topics: TopicWithUser[];
+  }>(`${process.env.NEXT_PUBLIC_API_URL}/api/topic/topics`);
+  const topics = data ?? [];
   const handleCreateTopic = (topic: { title: string; description: string }) => {
     console.log("Creating topic:", topic);
     setIsModalOpen(false);
@@ -156,10 +147,25 @@ export default function HomePage({ userName = "User" }: { userName?: string }) {
           </div>
 
           {/* Tabs */}
+          <div className="mb-6 flex gap-1">
+            {[
+              { label: "All Topics", value: "all" },
+              { label: "Active", value: "active" },
+              { label: "Inactive", value: "inactive" },
+            ].map((tab) => (
+              <Button
+                key={tab.value}
+                variant="ghost"
+                className="rounded-none border-b-2 border-transparent data-[active=true]:border-primary"
+              >
+                {tab.label}
+              </Button>
+            ))}
+          </div>
 
           {/* Topics Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {mockTopics.map((topic) => (
+            {topics.map((topic: Topic) => (
               <Card
                 key={topic.id}
                 className="hover:shadow-md transition-shadow h-64 flex flex-col"

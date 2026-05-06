@@ -7,10 +7,6 @@ import { createTopicSchema } from "../schemas/topicSchema.js";
 
 export type CreateTopicBody = z.infer<typeof createTopicSchema>;
 
-interface userIdParams {
-  id: string;
-}
-
 interface GetUsersTopicResponse {
   id: number;
   user_id: number;
@@ -57,7 +53,7 @@ export const getUsersTopic: GetUsersTopicHandler = async (_req, res, next) => {
     )) as GetUsersTopicResponse[];
 
     if (!topics || topics.length === 0) {
-      return res.status(404).json({ message: "No topics found" });
+      return res.status(204).json({ message: "No topics found" });
     }
 
     return res.status(200).json(topics);

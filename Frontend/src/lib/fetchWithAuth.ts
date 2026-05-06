@@ -52,16 +52,19 @@ export async function fetchWithAuth(
 
   try {
     // Call refresh token endpoint
-    const refreshResponse = await fetch("/api/user/refreshToken", {
-      method: "POST",
-      credentials: "include", // Sends old cookie, receives new one
-      headers: { "Content-Type": "application/json" },
-    });
+    const refreshResponse = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/api/user/refreshToken`,
+      {
+        method: "POST",
+        credentials: "include", // Sends old cookie, receives new one
+        headers: { "Content-Type": "application/json" },
+      },
+    );
 
     // Refresh failed - redirect to login
     if (!refreshResponse.ok) {
       processQueue(new Error("Token refresh failed"));
-      window.location.href = "/login";
+      window.location.href = "/public/login";
       return refreshResponse;
     }
 
@@ -72,7 +75,7 @@ export async function fetchWithAuth(
   } catch (error) {
     // Network error during refresh
     processQueue(error);
-    window.location.href = "/login";
+    window.location.href = "/public/login";
     throw error;
   } finally {
     isRefreshing = false;
