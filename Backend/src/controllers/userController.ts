@@ -74,6 +74,7 @@ export const authUser: LoginHandler = async (req, res, next) => {
     const refreshToken = jwt.sign(
       { user_id: user.id, username: user.username },
       process.env.REFRESH_TOKEN!,
+      { expiresIn: "8h" },
     );
     res.cookie("accessToken", accessToken, {
       httpOnly: true,
