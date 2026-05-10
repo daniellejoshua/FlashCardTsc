@@ -5,9 +5,8 @@ import { MdClose, MdAdd } from "react-icons/md";
 interface CreateTopicModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (topic: { title: string; description: string }) => void;
+  onSubmit: (topic: { title: string; description: string }) => Promise<void>;
 }
-
 export default function CreateTopicModal({
   isOpen,
   onClose,
@@ -17,13 +16,13 @@ export default function CreateTopicModal({
   const [description, setDescription] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.SyntheticEvent) => {
     e.preventDefault();
     if (!title.trim()) return;
 
     setIsLoading(true);
     try {
-      onSubmit({ title: title.trim(), description: description.trim() });
+      await onSubmit({ title: title.trim(), description: description.trim() });
       setTitle("");
       setDescription("");
     } finally {
@@ -59,7 +58,7 @@ export default function CreateTopicModal({
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="e.g., Biology Fundamentals"
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-colors"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-black placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-colors resize-none"
               required
             />
             <p className="text-xs text-gray-600 mt-1">
@@ -77,7 +76,7 @@ export default function CreateTopicModal({
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Optional: Add a brief description"
               rows={3}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-colors resize-none"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-colors resize-none text-black"
             />
             <p className="text-xs text-gray-600 mt-1">Maximum 200 characters</p>
           </div>
@@ -110,6 +109,14 @@ export default function CreateTopicModal({
           </div>
         </form>
       </div>
+
+      {/* Loading overlay */}
+      {isLoading && (
+        <div className="absolute inset-0 bg-white/80 backdrop-blur-sm flex flex-col items-center justify-center rounded-lg">
+          <div className="animate-spin border-4 border-black/20 border-t-black rounded-full h-12 w-12 mb-4" />
+          <p className="text-sm font-medium text-black">Creating topic...</p>
+        </div>
+      )}
     </div>
   );
 }

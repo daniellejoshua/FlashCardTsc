@@ -21,6 +21,8 @@ import {
 import { Separator } from "@/components/ui/separator";
 import CreateTopicModal from "./CreateTopicModal";
 import { useFetch } from "@/hooks/useFetch";
+import { createTopic } from "@/lib/topicApi";
+
 const sidebarItems = [
   { label: "Overview", icon: MdDashboard },
   { label: "Topics", icon: MdAutoStories, active: true },
@@ -53,9 +55,18 @@ export default function HomePage({ userName = "User" }: { userName?: string }) {
     topics: TopicWithUser[];
   }>(`${process.env.NEXT_PUBLIC_API_URL}/api/topic/topics`);
   const topics = data ?? [];
-  const handleCreateTopic = (topic: { title: string; description: string }) => {
-    console.log("Creating topic:", topic);
-    setIsModalOpen(false);
+  const handleCreateTopic = async (topic: {
+    title: string;
+    description: string;
+  }) => {
+    try {
+      await createTopic(topic);
+      setIsModalOpen(false);
+      await refetch();
+    } catch (error) {
+      console.error("Failed to create topic", error);
+      // optionally show an error message here
+    }
   };
 
   return (
