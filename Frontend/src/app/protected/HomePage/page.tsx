@@ -1,17 +1,8 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import {
-  MdMenu,
-  MdExpandMore,
-  MdDashboard,
-  MdAutoStories,
-  MdOutlineAssignmentTurnedIn,
-  MdTrendingUp,
-  MdAnalytics,
-  MdSettings,
-  MdLogout,
-} from "react-icons/md";
+import { motion } from "framer-motion";
+import { MdArrowForward } from "react-icons/md";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -24,14 +15,6 @@ import CreateTopicModal from "./CreateTopicModal";
 import { useFetch } from "@/hooks/useFetch";
 import { createTopic } from "@/lib/topicApi";
 
-const sidebarItems = [
-  { label: "Overview", icon: MdDashboard },
-  { label: "Topics", icon: MdAutoStories, active: true },
-  { label: "My Flashcards", icon: MdOutlineAssignmentTurnedIn },
-  { label: "Progress", icon: MdTrendingUp },
-  { label: "Analytics", icon: MdAnalytics },
-  { label: "Settings", icon: MdSettings },
-];
 type Topic = {
   id: number;
   title: string;
@@ -50,13 +33,13 @@ interface TopicWithUser {
 
 export default function HomePage({ userName = "User" }: { userName?: string }) {
   const router = useRouter();
-  const [sidebarOpen, setSidebarOpen] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const { data, loading, error, refetch } = useFetch<{
     topics: TopicWithUser[];
   }>(`${process.env.NEXT_PUBLIC_API_URL}/api/topic/topics`);
   const topics = data ?? [];
+
   const handleCreateTopic = async (topic: {
     title: string;
     description: string;
@@ -67,150 +50,145 @@ export default function HomePage({ userName = "User" }: { userName?: string }) {
       await refetch();
     } catch (error) {
       console.error("Failed to create topic", error);
-      // optionally show an error message here
     }
   };
 
   return (
-    <div className="flex h-screen bg-background">
-      {/* Sidebar */}
-      <aside
-        className={`${
-          sidebarOpen ? "w-64" : "w-16"
-        } bg-blue-50 border-r border-border transition-all duration-300 flex flex-col`}
-      >
-        <div className="p-4 flex items-center justify-between">
-          <div
-            className={`font-bold text-lg text-blue-900 ${!sidebarOpen && "hidden"}`}
-          >
-            StudyHub
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
+      {/* Header */}
+      <header className="border-b border-slate-200/30 bg-white/40 backdrop-blur-sm">
+        <div className="max-w-7xl mx-auto px-6 py-8 flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold bg-gradient-to-r from-indigo-600 to-blue-600 bg-clip-text text-transparent">
+              StudyHub
+            </h1>
+            <p className="text-sm text-slate-600 mt-1">
+              Welcome back, {userName}
+            </p>
           </div>
           <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setSidebarOpen(!sidebarOpen)}
-            className="text-blue-700 hover:bg-blue-100"
+            onClick={() => setIsModalOpen(true)}
+            className="bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-700 hover:to-blue-700 text-white shadow-lg hover:shadow-xl transition-all"
           >
-            <MdMenu size={20} />
+            + New Topic
           </Button>
         </div>
-
-        <nav className="flex-1 p-4 space-y-2">
-          {sidebarItems.map((item, idx) => {
-            const IconComponent = item.icon;
-            return (
-              <Button
-                key={idx}
-                variant={item.active ? "default" : "ghost"}
-                className={`w-full justify-start gap-3 text-blue-700 hover:bg-blue-100 hover:text-blue-900 ${
-                  item.active && "bg-blue-100 text-blue-900"
-                } ${!sidebarOpen && "px-2"}`}
-              >
-                <IconComponent size={20} />
-                <span className={`text-sm ${!sidebarOpen && "hidden"}`}>
-                  {item.label}
-                </span>
-              </Button>
-            );
-          })}
-        </nav>
-
-        <div className="p-4">
-          <Button
-            variant="ghost"
-            className={`w-full justify-start gap-3 text-blue-700 hover:bg-blue-100 hover:text-blue-900 ${
-              !sidebarOpen && "px-2"
-            }`}
-          >
-            <MdLogout size={20} />
-            <span className={`text-sm ${!sidebarOpen && "hidden"}`}>
-              Logout
-            </span>
-          </Button>
-        </div>
-      </aside>
+      </header>
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col">
-        {/* Header */}
-        <header className="bg-background px-6 py-4 flex items-center justify-end">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-semibold text-sm">
-              {userName.charAt(0).toUpperCase()}
-            </div>
-            <div>
-              <p className="text-sm font-medium">Welcome</p>
-              <p className="text-xs text-muted-foreground">{userName}</p>
-            </div>
-            <MdExpandMore size={18} className="text-muted-foreground" />
-          </div>
-        </header>
+      <main className="max-w-7xl mx-auto px-6 py-12">
+        {/* Section Title */}
+        <div className="mb-10">
+          <h2 className="text-2xl font-bold text-slate-900 mb-2">
+            Your Topics
+          </h2>
+          <p className="text-slate-600">Select a topic to start studying</p>
+        </div>
 
-        {/* Main Area */}
-        <main className="flex-1 overflow-auto p-6">
-          {/* Title and Action */}
-          <div className="mb-6 flex items-center justify-between">
-            <div>
-              <h2 className="text-2xl font-semibold">Your Topics</h2>
-              <p className="text-muted-foreground">
-                Manage and study your flashcard topics
-              </p>
-            </div>
-            <Button onClick={() => setIsModalOpen(true)}>+ Create Topic</Button>
-          </div>
-
-          {/* Tabs */}
-          <div className="mb-6 flex gap-1">
-            {[
-              { label: "All Topics", value: "all" },
-              { label: "Active", value: "active" },
-              { label: "Inactive", value: "inactive" },
-            ].map((tab) => (
-              <Button
-                key={tab.value}
-                variant="ghost"
-                className="rounded-none border-b-2 border-transparent data-[active=true]:border-primary"
-              >
-                {tab.label}
-              </Button>
-            ))}
-          </div>
-
-          {/* Topics Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {topics.map((topic: Topic) => (
-              <Card
-                key={topic.id}
-                className="hover:shadow-md transition-shadow h-64 flex flex-col"
-              >
-                <CardHeader className="flex-1 flex flex-col">
-                  <CardTitle className="text-lg">{topic.title}</CardTitle>
-                  <CardDescription className="mt-2 flex-1 line-clamp-3">
-                    {topic.description}
-                  </CardDescription>
-                </CardHeader>
-                <div className="px-6 pb-6 mt-auto">
-                  <div className="text-sm text-muted-foreground mb-4">
-                    {topic.flashcardCount} flashcards
+        {/* Topics Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {loading
+            ? Array.from({ length: 3 }).map((_, idx) => (
+                <Card
+                  key={idx}
+                  className="border-slate-200 shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden bg-white/50 backdrop-blur-sm"
+                >
+                  <CardHeader className="pb-4">
+                    <motion.div
+                      className="h-7 bg-gradient-to-r from-slate-200 to-slate-300 rounded-lg w-3/4"
+                      animate={{ opacity: [0.6, 1, 0.6] }}
+                      transition={{
+                        duration: 1.5,
+                        repeat: Infinity,
+                        ease: "easeInOut",
+                      }}
+                    />
+                    <div className="mt-4 space-y-3">
+                      <motion.div
+                        className="h-4 bg-slate-200 rounded w-full"
+                        animate={{ opacity: [0.6, 1, 0.6] }}
+                        transition={{
+                          duration: 1.5,
+                          repeat: Infinity,
+                          ease: "easeInOut",
+                        }}
+                      />
+                      <motion.div
+                        className="h-4 bg-slate-200 rounded w-5/6"
+                        animate={{ opacity: [0.6, 1, 0.6] }}
+                        transition={{
+                          duration: 1.5,
+                          repeat: Infinity,
+                          ease: "easeInOut",
+                          delay: 0.1,
+                        }}
+                      />
+                    </div>
+                  </CardHeader>
+                  <Separator className="bg-slate-100" />
+                  <div className="px-6 py-4">
+                    <motion.div
+                      className="h-4 bg-slate-200 rounded w-1/3 mb-4"
+                      animate={{ opacity: [0.6, 1, 0.6] }}
+                      transition={{
+                        duration: 1.5,
+                        repeat: Infinity,
+                        ease: "easeInOut",
+                        delay: 0.2,
+                      }}
+                    />
+                    <motion.div
+                      className="h-10 bg-slate-200 rounded"
+                      animate={{ opacity: [0.6, 1, 0.6] }}
+                      transition={{
+                        duration: 1.5,
+                        repeat: Infinity,
+                        ease: "easeInOut",
+                        delay: 0.3,
+                      }}
+                    />
                   </div>
-                  <Separator className="mb-4" />
-                  <Button
-                    variant="outline"
-                    className="w-full"
-                    onClick={() =>
-                      router.push(
-                        `/protected/FlashcardStudy?topicId=${topic.id}`,
-                      )
-                    }
-                  >
-                    Study
-                  </Button>
-                </div>
-              </Card>
-            ))}
-          </div>
-        </main>
-      </div>
+                </Card>
+              ))
+            : topics.map((topic: Topic) => (
+                <motion.div
+                  key={topic.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3 }}
+                  whileHover={{ y: -4 }}
+                >
+                  <Card className="border-slate-200/70 shadow-md hover:shadow-2xl transition-all duration-300 overflow-hidden bg-white h-full flex flex-col group cursor-pointer">
+                    <CardHeader className="pb-0 pt-6 px-6">
+                      <CardTitle className="text-xl font-bold text-slate-900">
+                        {topic.title}
+                      </CardTitle>
+                      <CardDescription className="mt-3 text-slate-600 line-clamp-2 text-sm leading-relaxed">
+                        {topic.description}
+                      </CardDescription>
+                    </CardHeader>
+                    <Separator className="mt-6 bg-slate-100" />
+                    <div className="px-6 py-5 flex-1 flex flex-col justify-between">
+                      <div className="text-sm font-semibold text-indigo-600">
+                        {topic.flashcardCount} flashcards
+                      </div>
+                      <button
+                        onClick={() =>
+                          router.push(
+                            `/protected/FlashcardStudy?topicId=${topic.id}`,
+                          )
+                        }
+                        className="mt-4 w-full px-4 py-2.5 bg-gradient-to-r from-indigo-500 to-blue-500 hover:from-indigo-600 hover:to-blue-600 text-white font-medium rounded-lg transition-all duration-200 flex items-center justify-center gap-2 group/btn"
+                      >
+                        Start Study
+                        <MdArrowForward className="group-hover/btn:translate-x-1 transition-transform" />
+                      </button>
+                    </div>
+                  </Card>
+                </motion.div>
+              ))}
+        </div>
+      </main>
 
       {/* Create Topic Modal */}
       <CreateTopicModal
