@@ -2,6 +2,7 @@ import type { RequestHandler } from "express";
 import type { AuthLocals } from "../types/authToken.js";
 import {
   createFlashcards,
+  getFlashcardById,
   type FlashcardCreateInput,
 } from "../models/Flashcards.js";
 import { createTopic } from "../models/Topic.js";
@@ -12,6 +13,8 @@ interface FlashcardRow {
   answer: string;
   created_at: string;
 }
+type GetFlashcardsByTopicSuccess = FlashcardRow[];
+type GetFlashcardsByTopicError = { message: string };
 
 type GenerateFlashcardSuccess = {
   topic: unknown;
@@ -21,8 +24,6 @@ type GenerateFlashcardSuccess = {
 type GenerateFlashcardError = {
   message: string;
 };
-
-
 
 export const generateFlashCard: RequestHandler<
   {},
@@ -51,6 +52,25 @@ export const generateFlashCard: RequestHandler<
       topic,
       flashcards: savedFlashcards,
     });
+  } catch (error) {
+    return next(error);
+  }
+};
+
+export const getFlashcardByTopicId: RequestHandler<
+  { topicId: string },
+  GetFlashcardsByTopicSuccess | GetFlashcardsByTopicError,
+  {},
+  {},
+  AuthLocals
+> = async (req, res, next) => {
+  try {
+    const topicId = Number(req.params.topicId);
+    if (Number.isNaN(topicId)) {
+      return res.status(400).json({ message: "Invalid Topic ID" });
+    }
+    const flashcard = (await getFlashcardById(topicId)) as FlashcardRow[];
+    return res.status(200).json(flashcard);
   } catch (error) {
     return next(error);
   }

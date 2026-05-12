@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   MdMenu,
   MdExpandMore,
@@ -48,6 +49,7 @@ interface TopicWithUser {
 }
 
 export default function HomePage({ userName = "User" }: { userName?: string }) {
+  const router = useRouter();
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -192,7 +194,15 @@ export default function HomePage({ userName = "User" }: { userName?: string }) {
                     {topic.flashcardCount} flashcards
                   </div>
                   <Separator className="mb-4" />
-                  <Button variant="outline" className="w-full">
+                  <Button
+                    variant="outline"
+                    className="w-full"
+                    onClick={() =>
+                      router.push(
+                        `/protected/FlashcardStudy?topicId=${topic.id}`,
+                      )
+                    }
+                  >
                     Study
                   </Button>
                 </div>

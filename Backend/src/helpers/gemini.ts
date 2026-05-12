@@ -7,28 +7,37 @@ interface FlashcardAIOutput {
 
 function buildPrompt(title: string, description: string, count = 5) {
   return `
-Generate exactly ${count} flashcards for the topic below.
+Generate exactly ${count} EASY flashcards for beginners learning about: "${title}"
 
 OUTPUT REQUIREMENTS:
-- Return ONLY a raw JSON array (no backticks, no markdown, no preamble, no trailing commentary)
+- Return ONLY a raw JSON array (no backticks, no markdown, no preamble)
 - First character must be '[' and last character must be ']'
 
 FORMAT:
 [{"question": "Q1", "answer": "A1"}, {"question": "Q2", "answer": "A2"}]
 
-EXAMPLE for "Solar System" topic:
-[{"question": "What is the largest planet in our solar system?", "answer": "Jupiter"}, {"question": "Which planet is known as the Red Planet?", "answer": "Mars"}]
+DIFFICULTY RULES - MAKE THESE VERY EASY:
+- Use simple, everyday language
+- Focus on basic definitions and key concepts
+- Ask "What is...", "Define...", "Name..." style questions
+- Avoid trick questions, exceptions, or edge cases
+- Keep answers short (1-3 words when possible)
+- Assume learner has zero background knowledge
 
 QUALITY RULES:
-- Questions must be specific and unambiguous
-- Answers must be factually accurate and complete
-- Avoid yes/no questions unless answer provides explanation
+- Questions must be clear and unambiguous
+- Answers must be factually accurate
+- No yes/no questions
+- No questions requiring multiple steps
 
 TOPIC:
 Title: ${title}
 Description: ${description}
 
-REMINDER: Output JSON array only. No other text.
+EXAMPLE for "Photosynthesis":
+[{"question": "What is the process plants use to make food from sunlight?", "answer": "Photosynthesis"}, {"question": "What gas do plants take in from the air?", "answer": "Carbon dioxide"}]
+
+REMINDER: Only JSON array. No other text.
 `;
 }
 
